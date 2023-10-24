@@ -22,3 +22,30 @@ pip install -r requirements.txt
 
 uvicorn main:app --reload
 ```
+
+## Graph Construction
+
+To use the demonstrator, you should have a graph instance running. 
+
+In this work, only specific parts of the SustainGraph are built.
+The entire project is available here [https://gitlab.com/netmode/sustaingraph](https://gitlab.com/netmode/sustaingraph).
+
+A running Neo4j instance is needed.
+
+Environment variables must be set : 
+
+```sh
+export GRAPH_URI=<GRAPH_URI>
+export GRAPH_USER=<GRAPH_USER>
+export GRAPH_PASSWORD=<GRAPH_PASSWORD>
+```
+
+Then, the graph construction script can be run to construct specific parts of the SustainGraph : 
+
+```sh
+python3 graph_construction/graph_construction.py
+```
+
+## References
+
+> Fotopoulou E, Mandilara I, Zafeiropoulos A, Laspidou C, Adamos G, Koundouri P and Papavassiliou S (2022) SustainGraph: A knowledge graph for tracking the progress and the interlinking among the sustainable development goals’ targets. Front. Environ. Sci. 10:1003599. doi: 10.3389/fenvs.2022.1003599
