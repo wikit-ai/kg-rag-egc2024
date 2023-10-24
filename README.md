@@ -22,3 +22,7 @@ pip install -r requirements.txt
 
 uvicorn main:app --reload
 ```
+
+## Dataset
+
+The questions used to evaluate the different methods are listed in the file _sdg_questions.csv_ in the _dataset_ folder. 
