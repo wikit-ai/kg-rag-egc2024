@@ -1,4 +1,5 @@
 from dependency_injector import containers, providers
+from langchain_custom_openai.service import LangChainCustom
 from langchain_graph_qa_openai.service import LangChainGraphQA
 
 
@@ -12,9 +13,11 @@ class ApplicationContainer(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         modules=[
             "langchain_graph_qa_openai.router",
+            "langchain_custom_openai.router",
         ]
     )
     configuration = providers.Configuration()
 
     # Singleton without dependency injection
     langchain_graphqa_service = providers.Singleton(LangChainGraphQA)
+    langchain_custom_service = providers.Singleton(LangChainCustom)

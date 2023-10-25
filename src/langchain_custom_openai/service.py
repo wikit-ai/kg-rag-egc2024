@@ -7,9 +7,11 @@ from langchain.graphs import Neo4jGraph
 from langchain_graph_qa_openai.schema import Output
 from typing import Any, Dict
 
+from langchain_custom_openai.schema import CYPHER_GENERATION_PROMPT, CYPHER_QA_PROMPT
 
-class LangChainGraphQA:
-    """LangChain Graph QA for Neo4j graph."""
+
+class LangChainCustom:
+    """LangChain Graph QA for Neo4j graph with custom prompt."""
 
     def __init__(self) -> None:
         self.graph = Neo4jGraph(
@@ -21,6 +23,8 @@ class LangChainGraphQA:
         self.chain = GraphCypherQAChain.from_llm(
             ChatOpenAI(temperature=0),
             graph=self.graph,
+            cypher_prompt=CYPHER_GENERATION_PROMPT, 
+            qa_prompt=CYPHER_QA_PROMPT,
             return_intermediate_steps=True,
         )
 
