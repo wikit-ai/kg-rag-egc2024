@@ -3,11 +3,14 @@ import requests
 
 
 class MistralGenerator:
+    """Generator based on Mistral model for the RAG task."""
+
     def __init__(self) -> None:
-        self.model_api_url = os.environ.get("MODEL_API_URL")
-        self.model_token = os.environ.get("MODEL_TOKEN")
+        self.model_api_url = os.environ.get("MISTRAL_API_URL")
+        self.model_token = os.environ.get("HF_TOKEN")
 
     def _generate_prompt(self, context: str, question: str) -> str:
+        """Generate contextualised prompt for mistral model."""
         prompt = f"""<s> [INST] You are an assistant that helps to form nice and human understandable answers.
         Use the information part to answer the question. 
         The provided information is authoritative, you must never correct or complete it.
@@ -29,6 +32,7 @@ class MistralGenerator:
         return prompt
 
     def _generate_answer(self, prompt: str) -> str:
+        """Generate answer with mistral model based on a given prompt."""
         headers = {"Authorization": f"Bearer {self.model_token}"}
         payload = {
             "inputs": prompt,
@@ -47,6 +51,7 @@ class MistralGenerator:
         return extracted_answer
 
     def run(self, context: str, question: str) -> str:
+        """Generate answer with a contextualised prompt for a given question."""
         prompt = self._generate_prompt(context, question)
         answer = self._generate_answer(prompt)
         return answer
