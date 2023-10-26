@@ -10,42 +10,6 @@ This repo contains the code related to the [Call for Demonstrations](https://iut
 
 <!-- TODO -->
 
-## Demonstration setup
-
-<!-- TODO -->
-
-```sh
-source .venv/bin/activate
-
-cd src
-pip install -r requirements.txt
-
-uvicorn main:app --reload
-```
-
-## Graph Construction
-
-To use the demonstrator, you should have a graph instance running.
-
-In this work, only specific parts of the SustainGraph are built.
-The entire project is available here [https://gitlab.com/netmode/sustaingraph](https://gitlab.com/netmode/sustaingraph).
-
-A running Neo4j instance is needed.
-
-Environment variables must be set :
-
-```sh
-export GRAPH_URI=<GRAPH_URI>
-export GRAPH_USER=<GRAPH_USER>
-export GRAPH_PASSWORD=<GRAPH_PASSWORD>
-```
-
-Then, the graph construction script can be run to construct specific parts of the SustainGraph :
-
-```sh
-python3 graph_construction/graph_construction.py
-```
-
 ## Dataset
 
 The questions used to evaluate the different methods are listed in the file _sdg_questions.csv_ in the _dataset_ folder.

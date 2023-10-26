@@ -62,7 +62,7 @@ class ELRetriever:
         self.graph = Graph(
             uri=os.environ.get("GRAPH_URI"),
             user=os.environ.get("GRAPH_USER"),
-            password=os.environ.get("PASSWORD"),
+            password=os.environ.get("GRAPH_PASSWORD"),
         )
 
     def _execute_queries(self, queries: List[str]):
