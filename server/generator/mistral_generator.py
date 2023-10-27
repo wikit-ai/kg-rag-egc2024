@@ -6,7 +6,7 @@ class MistralGenerator:
     """Generator based on Mistral model for the RAG task."""
 
     def __init__(self) -> None:
-        self.model_api_url = os.environ.get("MISTRAL_API_URL")
+        self.model_api_url = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"
         self.model_token = os.environ.get("HF_TOKEN")
 
     def _generate_prompt(self, context: str, question: str) -> str:

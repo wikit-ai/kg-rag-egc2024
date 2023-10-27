@@ -101,7 +101,7 @@ class EntityLinker:
         """Load the graph entites and synonyms."""
         entities_db = {}
         with open(
-            "entity_linking_mistralai/sdg_entities.csv", "r", encoding="utf-8-sig"
+            "retriever/sdg_entities.csv", "r", encoding="utf-8-sig"
         ) as f:
             reader = csv.reader(f)
             for line in reader:
