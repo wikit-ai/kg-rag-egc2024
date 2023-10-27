@@ -1,7 +1,7 @@
 import time
 
-from entity_linking_mistralai.generator import MistralGenerator
-from entity_linking_mistralai.retriever import ELRetriever
+from generator.mistral_generator import MistralGenerator
+from retriever.el_retriever import ELRetriever
 from entity_linking_mistralai.schema import Output
 from typing import Any, Dict, List
 
