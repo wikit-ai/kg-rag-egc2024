@@ -11,10 +11,10 @@ export GRAPH_URI=<GRAPH_URI>
 export GRAPH_USER=<GRAPH_USER>
 export GRAPH_PASSWORD=<GRAPH_PASSWORD>
 
-export MISTRAL_API_URL=https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1
 export HF_TOKEN=<HF_TOKEN>
 
 export OPENAI_API_KEY=<OPENAI_API_KEY>
+export OPENAI_ORG=<OPENAI_ORG>
 ```
 
 ```sh
