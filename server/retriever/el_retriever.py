@@ -72,21 +72,25 @@ class ELRetriever:
             facts += self.graph.run(query).data()
         return facts
 
-    def run(self, question: str) -> str:
+    def run(self, question: str) -> Dict[str, Any]:
         """Retrieve context for a question based on a graph."""
         context = ""
-        self.el.run(question)
-        self.qp.run(self.el.question_entities)
-        facts = self._execute_queries(self.qp.queries)
+        question_entities = self.el.run(question)
+        queries = self.qp.run(question_entities)
+        facts = self._execute_queries(queries)
         if len(facts) == 0:
-            new_queries = self.qp.add_intermediate_relations()
+            new_queries = self.qp.add_intermediate_relations(queries)
             facts = self._execute_queries(new_queries)
         for fact in facts:
             context += str(fact)
             context += "\n"
         if len(context) == 0:
             context = "[]"
-        return context
+        return {
+            "question_entities": question_entities,
+            "queries": queries,
+            "context": context,
+        }
 
 
 class EntityLinker:
@@ -95,14 +99,11 @@ class EntityLinker:
     def __init__(self) -> None:
         self.spacy_model = spacy.load("en_core_web_sm")
         self.entities = self._load_entities()
-        self.question_entities = {}
 
-    def _load_entities(self) -> Dict[str, List[str]]:
+    def _load_entities(self) -> Dict[str, str]:
         """Load the graph entites and synonyms."""
         entities_db = {}
-        with open(
-            "retriever/sdg_entities.csv", "r", encoding="utf-8-sig"
-        ) as f:
+        with open("retriever/sdg_entities.csv", "r", encoding="utf-8-sig") as f:
             reader = csv.reader(f)
             for line in reader:
                 concept = line[0]
@@ -116,25 +117,30 @@ class EntityLinker:
             entities_db.setdefault(key, val)
         return entities_db
 
-    def _extract_entities(self, sent: str) -> None:
+    def _extract_entities(self, sent: str) -> Dict[str, Any]:
         """Extract entities from a sentence."""
+        question_entities = {}
         sent_lower = sent.lower()
         for label, _ in self.entities.items():
             if label in sent_lower:
-                if not (self.entities[label] in self.question_entities.keys()):
+                if not (self.entities[label] in question_entities.keys()):
                     index = sent_lower.index(label)
-                    self.question_entities[self.entities[label]] = {
+                    question_entities[self.entities[label]] = {
                         "start": index,
                         "end": index + len(label),
                     }
+        return question_entities
 
-    def _find_closest_concept(self, text: str, sent: str) -> str:
+    def _find_closest_concept(
+        self, text: str, sent: str, question_entities: Dict[str, Any]
+    ) -> str:
         """Find the closest concept of a word in a sententce."""
-        start_index = sent.index(text)
+        start_index = sent.lower().index(text)
         end_index = start_index + len(text)
         distance_min = len(sent)
         closest_concept = None
-        for concept_name, concept_details in self.question_entities.items():
+        distance = distance_min
+        for concept_name, concept_details in question_entities.items():
             if end_index <= concept_details["start"]:
                 distance = concept_details["start"] - end_index
             elif concept_details["end"] <= start_index:
@@ -144,7 +150,9 @@ class EntityLinker:
                 closest_concept = concept_name
         return closest_concept
 
-    def _extract_number(self, spacy_sent: spacy.tokens.Doc) -> None:
+    def _extract_number(
+        self, question_entities: Dict[str, Any], spacy_sent: spacy.tokens.Doc
+    ) -> Dict[str, Any]:
         """Extract numerical information (numbers or text) in a sentence."""
         for token in spacy_sent:
             if token.like_num:
@@ -156,18 +164,19 @@ class EntityLinker:
                     except:
                         break
                 closest_concept = self._find_closest_concept(
-                    token.lower_, spacy_sent.text
+                    token.lower_, spacy_sent.text, question_entities
                 )
-                self.question_entities[closest_concept]["code"] = (
-                    '{code:"' + code + '"}'
-                )
+                question_entities[closest_concept]["code"] = '{code:"' + code + '"}'
+        return question_entities
 
-    def _noun_in_entities(self, noun: str, sent: str) -> bool:
+    def _noun_in_entities(
+        self, noun: str, sent: str, question_entities: Dict[str, Any]
+    ) -> bool:
         """Check if a word is a graph entity."""
         found = False
         start_index = sent.lower().index(noun)
         end_index = start_index + len(noun)
-        for concept_details in self.question_entities.values():
+        for concept_details in question_entities.values():
             if (concept_details["start"] <= start_index) and (
                 concept_details["end"] >= end_index
             ):
@@ -175,45 +184,49 @@ class EntityLinker:
                 break
         return found
 
-    def _extract_complementary_info(self, spacy_sent: spacy.tokens.Doc):
+    def _extract_complementary_info(
+        self, question_entities: Dict[str, Any], spacy_sent: spacy.tokens.Doc
+    ) -> Dict[str, Any]:
         """Extract complementary nouns to entity in a sentence."""
         for token in spacy_sent:
             if token.pos_ == "NOUN":
-                if not (self._noun_in_entities(token.lower_, spacy_sent.text)):
-                    closest_concept = self._find_closest_concept(
-                        token.lower_, spacy_sent.text
+                if not (
+                    self._noun_in_entities(
+                        token.lower_, spacy_sent.text, question_entities
                     )
-                    if (
-                        "specifications"
-                        in self.question_entities[closest_concept].keys()
-                    ):
-                        self.question_entities[closest_concept][
-                            "specifications"
-                        ].append(token.lower_)
+                ):
+                    closest_concept = self._find_closest_concept(
+                        token.lower_, spacy_sent.text, question_entities
+                    )
+                    if "specifications" in question_entities[closest_concept].keys():
+                        question_entities[closest_concept]["specifications"].append(
+                            token.lower_
+                        )
                     else:
-                        self.question_entities[closest_concept]["specifications"] = [
+                        question_entities[closest_concept]["specifications"] = [
                             token.lower_
                         ]
+        return question_entities
 
     def run(self, question: str) -> None:
         """Extract graph entities and from a sentence."""
         spacy_sent = self.spacy_model(question)
-        self._extract_entities(question)
-        if len(self.question_entities) > 0:
-            self._extract_number(spacy_sent)
-            self._extract_complementary_info(spacy_sent)
+        question_entities = self._extract_entities(question)
+        if len(question_entities) > 0:
+            question_entities = self._extract_number(question_entities, spacy_sent)
+            question_entities = self._extract_complementary_info(
+                question_entities, spacy_sent
+            )
+        return question_entities
 
 
 class QueryPattern:
     """Query patterns construction for graph context extraction."""
 
-    def __init__(self) -> None:
-        self.queries = []
-
-    def add_intermediate_relations(self) -> List[str]:
+    def add_intermediate_relations(self, queries: List[str]) -> List[str]:
         """Modify requests to add intermediates relations."""
         new_queries = []
-        for query in self.queries:
+        for query in queries:
             rel_index = [rel.end() for rel in re.finditer("->", query)]
             for i, ind in enumerate(rel_index):
                 new_query = f"{query[:ind]} (ne{i}) - [r] -> {query[ind:]}"
@@ -253,7 +266,8 @@ class QueryPattern:
 
         return query
 
-    def run(self, entities: Dict[str, Any]) -> None:
+    def run(self, entities: Dict[str, Any]) -> List[str]:
+        queries = []
         """Create cypher queries based on patters and entities found in the question."""
         if len(entities) == 1:
             entity = list(entities.keys())[0]
@@ -265,8 +279,9 @@ class QueryPattern:
                         query += " AND "
                     query += f"""((e.title CONTAINS \"{specification}\") OR (e.description CONTAINS \"{specification}\") OR (e.title CONTAINS \"{specification.capitalize()}\") OR (e.description CONTAINS \"{specification.capitalize()}\"))"""
             query += " RETURN e"
-            self.queries.append(query)
+            queries.append(query)
         elif len(entities) > 1:
             entity_groups = itertools.permutations(entities.keys(), len(entities))
             for entity_group in entity_groups:
-                self.queries.append(self._create_query(entity_group, entities))
+                queries.append(self._create_query(entity_group, entities))
+        return queries

@@ -35,14 +35,14 @@ class ELOpenAI:
     def run(self, question: str) -> Output:
         """Answer a question based on a knowledge graph."""
         start_time = time.time()
-        context = self.retriever.run(question)
-        answer = self.generator.run(context, question)
+        retriever_context = self.retriever.run(question)
+        answer = self.generator.run(retriever_context["context"], question)
         execution_time = time.time() - start_time
         formatted_output = self._format_output(
             execution_time,
-            self.retriever.el.question_entities,
-            self.retriever.qp.queries,
-            context,
+            retriever_context["question_entities"],
+            retriever_context["queries"],
+            retriever_context["context"],
             answer,
         )
         return formatted_output
