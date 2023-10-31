@@ -8,7 +8,19 @@ This repo contains the code related to the [Call for Demonstrations](https://iut
 
 ## Demonstration overview
 
-<!-- TODO -->
+Given a question in natural language, we want to extract the knowledge from the graph that can be used to answer it, and then generate an answer based on this knowledge.
+
+5 different techniques to do knowledge graph-based retrieval augmented generation are available :
+
+- _langchain_graph_qa_openai_ uses the _LangChain_ tool to generate a Cypher query based on the user's utterance and then uses the knowledge extracted from the graph with the query to generate an answer to the question with OpenAI model.
+- _langchain_custom_openai_ is the same as _langchain_graph_qa_openai_ but with custom prompts and a custom graph schema definition.
+- _rag_bert_openai_ uses semantic similarity between the content of the graph and the user's utterance to extract the relevant knowledge used to generate an answer with OpenAI model.
+- _entity_linking_openai_ uses entity linking and query patterns to extract knowledge from the graph and then generate an answer to the question based on this knowledge with OpenAI model.
+- _entity_linking_mistral_ is the same as _entity_linking_openai_ but with Mistral model.
+
+## Graph construction
+
+Information for building the graph used in the demonstrators is available in the _graph_construction_ folder.
 
 ## Dataset
 
