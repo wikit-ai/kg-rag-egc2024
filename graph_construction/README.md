@@ -18,7 +18,7 @@ export GRAPH_PASSWORD=<GRAPH_PASSWORD>
 Then, the graph construction script can be run to construct specific parts of the SustainGraph :
 
 ```sh
-cd wikit-egc2024/graph_construction
+cd kg-rag-egc2024/graph_construction
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
