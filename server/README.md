@@ -18,7 +18,7 @@ export OPENAI_ORG=<OPENAI_ORG>
 ```
 
 ```sh
-cd wikit-egc2024/server
+cd kg-rag-egc2024/server
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
