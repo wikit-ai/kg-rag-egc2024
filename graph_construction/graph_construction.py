@@ -61,7 +61,7 @@ df_6t = pd.read_excel(transformations_dataset, engine="openpyxl", sheet_name="In
 params = []
 statement = """
     UNWIND $parameters as row
-    MERGE (t:Transformation{title:row.title,code:row.code})
+    MERGE (t:Transformation{title:row.title,code:toString(row.code)})
     """
 
 for index, row in df_6t.iterrows():
