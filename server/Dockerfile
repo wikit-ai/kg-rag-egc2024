@@ -18,7 +18,7 @@ ENV OPENAI_API_KEY "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 ENV OPENAI_ORG = "org-xxxxxxxxxxxx"
 
-ENV HF_TOKEN "api_org_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+ENV MISTRAL_API_KEY "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
